@@ -1,0 +1,59 @@
+
+
+Character devices transfer data to or from a user application by means of characters, in a stream manner, one character after another like a serial port does.(LDD, JM)
+  A char device driver exposes the properties and functionalities of a device by means of a special file in the /dev directory, which you can use to exchange data between the device and the user application.
+
+In Linux everything is a file.
+
+Major - Minor
+
+
+Major number identifies the driver associated with the device.
+The minor number is used by the kernel to determine exactly which device is
+being referred to.
+
+Within the kernel the dev_t type <linux/types.h>  is used to hold device
+numbers- both the major and minor parts.
+
+One of the first things the driver needs to do is setting up a char device. 
+The necessary function for this talk is to obtain one or more device numbers
+to work with.The function for this is :
+
+int register_chrdev_region(dev_t first, unsigned int count, char * name);
+
+To access a char device , a system user invokes a suitable application program.
+The application is responsible for talking to the device.
+To do that it needs to elicit the identity of a suitable driver.
+The contact details of the driver are exported to user space via /dev directory.
+
+Char Drivers have the following:
+
+  - An initialization( or init()) routine , that is responsible for initializing the device and seamlessly tying the driver to the rest of the kernel via registration functions.
+
+  - A set of entry points (or methods) such as open(), read(), ioctl(), llseek(), and write(),
+  which directly correspond to I/O system calls invoked by user applications over the associated /dev node
+
+  - Interrupt routines
+
+
+Data Flow
+
+1. A per-device structure. This is the information repository around which the driver revolves.
+
+2. A struct cdev, a kernel abstraction for character driver. This structure is embedded inside the per-device structure.
+
+3. struct file_operations, which contains the addresses of all driver entry points.
+
+4. struct file, which contains information about the associated /dev node.
+
+
+  Set of operations that need to be performed:
+1. Reserve a major and a range of minors with alloc_chrdev_ region()
+2. Create a class for your devices with class_create(), visible in /sys/class/.
+3. Set up a struct file_operation (to be given to cdev_init), and for each
+  device you need to create , call cdev_init() and cdev_add() to register the device.
+4. Then , create a device_create() for each device, with a proper name. It will
+  result in your device being created in the /dev directory:
+
+A file is a kernel level structure and never appears in a user space program.
+It is not the same as a FILE , which is defined by glibc.
