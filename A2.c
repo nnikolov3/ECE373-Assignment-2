@@ -1,15 +1,7 @@
 /* Assignment 2
- * Nikolay Nikolov
- * 04/20/2019
- * Character Driver
- *
  * The purpose of this assignment is to build a character  driver.
- *
  * For more information about Char Drivers please refer to the  READ_ME file for
  * the program
- *
- *
- * 
  */
 
 #include <linux/module.h>
